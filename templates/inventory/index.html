@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Inventory Management</h2>
+    <div class="mb-3">
+        <a href="{{ url_for('inventory.add') }}" class="btn btn-success">Add New Item</a>
+        <a href="{{ url_for('inventory.low_stock') }}" class="btn btn-warning">View Low Stock</a>
+        <a href="{{ url_for('inventory.hazardous') }}" class="btn btn-danger">Hazardous Materials</a>
+    </div>
+    
+    <div class="list-group">
+        {% for item in inventory_items %}
+        <div class="list-group-item">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h5>{{ item.name }} ({{ item.category }})</h5>
+                    <p class="mb-0">
+                        Quantity: {{ item.quantity }} {{ item.unit }}
+                        | Location: {{ item.location }}
+                    </p>
+                </div>
+                <div class="btn-group">
+                    <a href="{{ url_for('inventory.view', id=item.id) }}" class="btn btn-sm btn-info">View</a>
+                    <a href="{{ url_for('inventory.edit', id=item.id) }}" class="btn btn-sm btn-primary">Edit</a>
+                    <a href="{{ url_for('inventory.delete', id=item.id) }}" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure?')">Delete</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

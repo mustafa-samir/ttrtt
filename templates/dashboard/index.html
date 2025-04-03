@@ -1,0 +1,214 @@
+{% extends 'base.html' %}
+
+{% block title %}لوحة التحكم{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h2><i class="fas fa-tachometer-alt me-2"></i>لوحة التحكم</h2>
+        <p class="text-muted">مرحباً {{ current_user.first_name }}، هذه هي لوحة التحكم الرئيسية لنظام إدارة المختبرات.</p>
+    </div>
+</div>
+
+<!-- Stats Cards -->
+<div class="row mb-4">
+    <div class="col-md-3 mb-3">
+        <div class="card bg-primary text-white h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="card-title">المعدات المتاحة</h6>
+                        <h2 class="mb-0">{{ available_equipment }}</h2>
+                    </div>
+                    <i class="fas fa-tools fa-2x"></i>
+                </div>
+            </div>
+            <div class="card-footer d-flex align-items-center justify-content-between">
+                <a href="{{ url_for('equipment.index') }}" class="text-white text-decoration-none">عرض التفاصيل</a>
+                <i class="fas fa-angle-left"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card bg-success text-white h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="card-title">المختبرات</h6>
+                        <h2 class="mb-0">{{ laboratory_count }}</h2>
+                    </div>
+                    <i class="fas fa-flask fa-2x"></i>
+                </div>
+            </div>
+            <div class="card-footer d-flex align-items-center justify-content-between">
+                <a href="{{ url_for('scheduling.calendar') }}" class="text-white text-decoration-none">عرض الجدول</a>
+                <i class="fas fa-angle-left"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card bg-warning text-white h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="card-title">المعدات قيد الصيانة</h6>
+                        <h2 class="mb-0">{{ maintenance_due|length }}</h2>
+                    </div>
+                    <i class="fas fa-wrench fa-2x"></i>
+                </div>
+            </div>
+            <div class="card-footer d-flex align-items-center justify-content-between">
+                <a href="{{ url_for('equipment.index') }}" class="text-white text-decoration-none">عرض التفاصيل</a>
+                <i class="fas fa-angle-left"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card bg-danger text-white h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="card-title">المخزون المنخفض</h6>
+                        <h2 class="mb-0">{{ low_inventory|length }}</h2>
+                    </div>
+                    <i class="fas fa-exclamation-triangle fa-2x"></i>
+                </div>
+            </div>
+            <div class="card-footer d-flex align-items-center justify-content-between">
+                <a href="{{ url_for('inventory.low_stock') }}" class="text-white text-decoration-none">عرض التفاصيل</a>
+                <i class="fas fa-angle-left"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Upcoming Schedules -->
+    <div class="col-md-6 mb-4">
+        <div class="card shadow h-100">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="fas fa-calendar-alt me-2"></i>المواعيد القادمة</h5>
+            </div>
+            <div class="card-body">
+                {% if upcoming_schedules %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>العنوان</th>
+                                <th>المختبر</th>
+                                <th>التاريخ</th>
+                                <th>الوقت</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for schedule in upcoming_schedules %}
+                            <tr>
+                                <td><a href="{{ url_for('scheduling.view', id=schedule.id) }}">{{ schedule.title }}</a></td>
+                                <td>{{ schedule.laboratory.name }}</td>
+                                <td>{{ schedule.start_time.strftime('%Y-%m-%d') }}</td>
+                                <td>{{ schedule.start_time.strftime('%H:%M') }} - {{ schedule.end_time.strftime('%H:%M') }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-muted text-center my-4">لا توجد مواعيد قادمة</p>
+                {% endif %}
+            </div>
+            <div class="card-footer text-end">
+                <a href="{{ url_for('scheduling.index') }}" class="btn btn-sm btn-primary">عرض الكل</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Low Inventory Items -->
+    <div class="col-md-6 mb-4">
+        <div class="card shadow h-100">
+            <div class="card-header bg-danger text-white">
+                <h5 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>المخزون المنخفض</h5>
+            </div>
+            <div class="card-body">
+                {% if low_inventory %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>الاسم</th>
+                                <th>الكمية</th>
+                                <th>الحد الأدنى</th>
+                                <th>الوحدة</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in low_inventory %}
+                            <tr>
+                                <td><a href="{{ url_for('inventory.view', id=item.id) }}">{{ item.name }}</a></td>
+                                <td>{{ item.quantity }}</td>
+                                <td>{{ item.minimum_quantity }}</td>
+                                <td>{{ item.unit }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-muted text-center my-4">لا توجد عناصر منخفضة المخزون</p>
+                {% endif %}
+            </div>
+            <div class="card-footer text-end">
+                <a href="{{ url_for('inventory.low_stock') }}" class="btn btn-sm btn-danger">عرض الكل</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Maintenance Due Equipment -->
+<div class="row">
+    <div class="col-md-12 mb-4">
+        <div class="card shadow">
+            <div class="card-header bg-warning text-white">
+                <h5 class="mb-0"><i class="fas fa-wrench me-2"></i>المعدات قيد الصيانة</h5>
+            </div>
+            <div class="card-body">
+                {% if maintenance_due %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>الاسم</th>
+                                <th>الرقم التسلسلي</th>
+                                <th>الموقع</th>
+                                <th>الحالة</th>
+                                <th>إجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for equipment in maintenance_due %}
+                            <tr>
+                                <td><a href="{{ url_for('equipment.view', id=equipment.id) }}">{{ equipment.name }}</a></td>
+                                <td>{{ equipment.serial_number }}</td>
+                                <td>{{ equipment.location }}</td>
+                                <td><span class="badge bg-warning">{{ equipment.status }}</span></td>
+                                <td>
+                                    <a href="{{ url_for('equipment.add_maintenance', id=equipment.id) }}" class="btn btn-sm btn-primary">
+                                        <i class="fas fa-plus-circle"></i> إضافة سجل صيانة
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-muted text-center my-4">لا توجد معدات قيد الصيانة</p>
+                {% endif %}
+            </div>
+            <div class="card-footer text-end">
+                <a href="{{ url_for('equipment.index') }}" class="btn btn-sm btn-warning">عرض كل المعدات</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

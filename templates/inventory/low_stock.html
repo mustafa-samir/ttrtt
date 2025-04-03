@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Low Stock Items</h2>
+    <div class="list-group">
+        {% for item in low_stock_items %}
+        <div class="list-group-item list-group-item-warning">
+            <div class="d-flex justify-content-between">
+                <div>
+                    <h5>{{ item.name }} ({{ item.category }})</h5>
+                    <p>Current: {{ item.quantity }} {{ item.unit }} | Minimum: {{ item.minimum_quantity }} {{ item.unit }}</p>
+                </div>
+                <div>
+                    <a href="{{ url_for('inventory.view', id=item.id) }}" class="btn btn-sm btn-info">View</a>
+                    <a href="{{ url_for('inventory.edit', id=item.id) }}" class="btn btn-sm btn-primary">Edit</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    <a href="{{ url_for('inventory.index') }}" class="btn btn-secondary mt-3">Back to Inventory</a>
+</div>
+{% endblock %}
